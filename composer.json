@@ -1,0 +1,46 @@
+{
+    "name": "houdunwang/laravel-view",
+    "description": "根据注释生成表结构",
+    "keywords": [
+        "houdunwang",
+        "laravel-view",
+        "后盾人",
+        "向军老师"
+    ],
+    "homepage": "http://www.houdunren.com/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "后盾网向军",
+            "email": "2300071698@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Houdunwang\\LaravelView\\ServiceProvider"
+            ],
+            "aliases": {
+            }
+        }
+    },
+    "require": {
+        "php": ">=7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.1"
+    },
+    "autoload": {
+        "files": [
+        ],
+        "psr-4": {
+            "Houdunwang\\LaravelView\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\": "tests"
+        }
+    }
+}
