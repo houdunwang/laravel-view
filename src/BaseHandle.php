@@ -5,7 +5,7 @@
  * |    Author: 向军大叔 <2300071698@qq.com>
  * '-------------------------------------------------------------------*/
 
-namespace Houdunwang\laravelView;
+namespace Houdunwang\LaravelView;
 
 use Houdunwang\LaravelView\Traits\Db;
 

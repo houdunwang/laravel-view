@@ -49,22 +49,22 @@ class StructureCommand extends Command
 
     protected function writeHandleClass()
     {
-        $file = $this->getDir().'/Handle.php';
+        $modelClass = get_class($this->model);
+        $modelName  = class_basename($modelClass);
+        $file = $this->getDir()."/{$modelName}Handle.php";
         if (is_file($file)) {
             return;
         }
         $namespace  = studly_case($this->getNamespace());
-        $modelClass = get_class($this->model);
-        $modelName  = class_basename($modelClass);
         $columns    = implode("','", array_keys($this->getColumnData()));
         file_put_contents($file, <<<str
 <?php 
 namespace {$namespace};
 
-use Houdunwang\laravelView\BaseHandle;
+use Houdunwang\LaravelView\BaseHandle;
 use {$modelClass};
 
-class Handle extends BaseHandle{
+class {$modelName}Handle extends BaseHandle{
     
     //允许处理字段
     protected \$allowFields = ['$columns'];

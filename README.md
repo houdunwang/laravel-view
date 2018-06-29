@@ -1,7 +1,9 @@
-# 介绍
+## 介绍
 
 根据注释生成表结构
 > houdunren.com @ 向军大叔  
+
+项目地址：https://github.com/houdunwang/laravel-view
 
 ## 安装
 
@@ -44,7 +46,7 @@ php artisan vendor:publish --provider="Houdunwang\Structure\ServiceProvider"
 
 请参考文档  https://github.com/houdunwang/houdunren-vue-form  进行安装配置。
 
-## 测试表
+### 测试表
 
 下面是用于后面讲解的栏目表结构
 
@@ -60,16 +62,16 @@ CREATE TABLE `article_categories` (
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-## 表配置
+## 生成结构
+
+### 数据表配置
 
 组件主要根据表字段的 comment 注释属性操作，下面以 article_categories 表的title 字段设置进行说明。
 ```
  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标题|input',
 ```
 上面是title字段的声明，COMMENT属性以 | 分隔 `中文描述|模板表单类型`
-## 生成结构
-
-#### 命令结构
+### 命令生成
 
 ```
 php artisan hd:structure 模型 [目录] --force
@@ -85,7 +87,7 @@ php artisan hd:structure App\\ArticleCategory --force
 系统将在 `app/Tables` 目录中创建以下文件结构
 ```
 └── ArticleCategory
-    ├── Handle.php  #表单值处理器
+    ├── ArticleCategoryHandle.php  #表单值处理器
     └── structure.php #表结构缓存
 ```
 
@@ -125,7 +127,7 @@ php artisan hd:structure App\\ArticleCategory Modules/Blog/Tables
 * 字段处理函数命名规则 `_`+`字段名`
 
 ```
-class Handle extends BaseHandle
+class ArticleCategoryHandle extends BaseHandle
 {
 	...
 	public function _pid()
@@ -154,7 +156,32 @@ class Handle extends BaseHandle
 
 ### 单张图片
 
-图片组件使用 `hd-
+
+
+## 调用 
+
+```
+<?php
+namespace App\Http\Controllers;
+
+use App\ArticleCategory;
+use App\Tables\ArticleCategory\ArticleCategoryHandle;
+
+class HomeController extends Controller
+{
+    public function index(ArticleCategory $articleCategory)
+    {
+        $handle = new ArticleCategoryHandle(ArticleCategory::find(1));
+        $html   = $handle->render();
+
+        return view('home', compact('html'));
+    }
+}
+```
+
+系统根据 `App\Tables\ArticleCategory\Handle` 结合模型 `ArticleCategory` 生成页面视图。
+
+当组件有数据时即编辑时，页面视图会自动添加上数据内容。
 
 
 
