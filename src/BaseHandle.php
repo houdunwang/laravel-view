@@ -36,7 +36,7 @@ class BaseHandle
             $field = array_merge($field, call_user_func_array([$this, '_'.$field['name']], []));
         }
         $model = $this->model;
-        return response(view('HdStructure::'.$field['type'], compact('field', 'model')))->getContent();
+        return response(view('HdLaravelView::'.$field['type'], compact('field', 'model')))->getContent();
     }
 
     //获取允许的列表

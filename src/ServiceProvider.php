@@ -31,10 +31,10 @@ class ServiceProvider extends BaseServiceProvider
         ]);
 
         //视图定义
-        $this->loadViewsFrom(__DIR__.'/views', 'HdStructure');
+        $this->loadViewsFrom(__DIR__.'/views', 'HdLaravelView');
 
         $this->publishes([
-            __DIR__.'/views' => resource_path('views/vendor/HdStructure'),
+            __DIR__.'/views' => resource_path('views/vendor/HdLaravelView'),
         ]);
     }
 

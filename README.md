@@ -1,6 +1,6 @@
 ## 介绍
 
-根据注释生成表结构
+根据数据表结构自动生成页面组件，可以快速帮助我们生成页面。
 > houdunren.com @ 向军大叔  
 
 项目地址：https://github.com/houdunwang/laravel-view
@@ -21,23 +21,10 @@ php artisan vendor:publish --provider="Houdunwang\Structure\ServiceProvider"
 
 组件会生成配置文件 `config/hd_tables.php` 文件
 
-### 设置自动加载
-
-修改 `composer.json` 设置psr-4 加载
-
-```
-...
-"psr-4": {
-	"App\\": "app/",
-	"Hdcms\\": "hdcms"
-}
-...
-```
-
 ### 发布视图
 
 ```
-php artisan vendor:publish --provider="Houdunwang\Structure\ServiceProvider"
+php artisan vendor:publish --provider="Houdunwang\LaravelView\ServiceProvider"
 ```
 
 ### 前端库
