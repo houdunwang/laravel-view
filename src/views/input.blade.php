@@ -1,6 +1,7 @@
+
 <div class="form-group row">
-    <label for="{{$field['name']}}" class="col-3 col-lg-2 col-form-label text-right">{{$field['title']}}</label>
-    <div class="col-9 col-lg-10">
+    <label for="{{$field['name']}}" class="col-12 col-sm-3 col-form-label text-md-right">{{$field['title']}}</label>
+    <div class="col-12 col-md-9">
         <input id="{{$field['name']}}" name="{{$field['name']}}" type="text"
                value="{{ $field['value']??old('email') }}" class="form-control{{ $errors->has($field['name']) ? ' is-invalid' : '' }}">
         @if ($errors->has($field['name']))
