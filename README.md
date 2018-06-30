@@ -108,7 +108,7 @@ php artisan hd:structure App\\ArticleCategory Modules/Blog/Tables
 
 ### 列表框
 
-下面是获取 `article_categories` 表 `pid` 字段视图中显示列表值的操作掩饰。
+下面是获取 `article_categories` 表 `pid` 字段视图中显示列表值的操作。
 
 * 字段处理函数定义在 `Headle.php` 类文件中
 * 字段处理函数命名规则 `_`+`字段名`
@@ -132,7 +132,7 @@ class ArticleCategoryHandle extends BaseHandle
                 'disabled'=>$this->model->id == $cat['id']
             ];
         }
-        return ['options'=>$data];;
+		return ['title'=>'重设栏目标题','options'=>$data];
     }
     ...
 }
@@ -140,10 +140,8 @@ class ArticleCategoryHandle extends BaseHandle
 
 * 返回值以数组形式返回并包含 `options` 选项
 * 必须返回 title/value/selected/disabled 字段
-
-### 单张图片
-
-
+* 上面字段也重新设置了栏目标题
+* 可以在处理函数中使用 `$this->model` 获取模型对象
 
 ## 调用 
 
