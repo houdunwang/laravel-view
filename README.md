@@ -19,7 +19,7 @@ composer require houdunwang/laravel-view:dev-master
 php artisan vendor:publish --provider="Houdunwang\Structure\ServiceProvider"
 ```
 
-组件会生成配置文件 `config/hd_tables.php` 文件
+组件会生成配置文件 `config/hd_tables.php` 
 
 ### 发布视图
 
