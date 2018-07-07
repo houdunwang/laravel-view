@@ -36,6 +36,7 @@ class BaseHandle
             $field = array_merge($field, call_user_func_array([$this, '_'.$field['name']], []));
         }
         $model = $this->model;
+        //dump($field);
         return response(view('HdLaravelView::'.$field['type'], compact('field', 'model')))->getContent();
     }
 
@@ -43,7 +44,6 @@ class BaseHandle
     protected function getAllowColumns()
     {
         $columns = $this->getColumnData();
-
         return array_filter($columns, function ($column) {
             return in_array($column['name'], $this->allowFields);
         });

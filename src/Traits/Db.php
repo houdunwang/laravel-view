@@ -21,10 +21,11 @@ trait Db
             if ($this->allowColumn($column)) {
                 $comment                     = explode('|', $column->getComment());
                 $configs[$column->getName()] = [
-                    'title' => $comment[0],
-                    'name'  => $column->getName(),
-                    'type'  => $comment[1],
-                    'value' => '',
+                    'title'   => $comment[0],
+                    'name'    => $column->getName(),
+                    'type'    => $comment[1],
+                    'value'   => '',
+                    'options' => $this->getFormOptions($comment),
                 ];
             }
         }
@@ -32,11 +33,24 @@ trait Db
         return $configs;
     }
 
+    protected function getFormOptions($comment)
+    {
+        $data = [];
+        if (isset($comment[2])) {
+            $options = explode(',', $comment[2]);
+            foreach ($options as $option) {
+                $data[] = explode(':', $option);
+            }
+        }
+
+        return $data;
+    }
+
     protected function allowColumn($column)
     {
         $comment = explode('|', $column->getComment());
 
-        return count($comment) == 2 &&
+        return count($comment) >= 2 &&
             ! in_array($column->getName(), $this->denyColumn);
     }
 

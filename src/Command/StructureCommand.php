@@ -13,7 +13,7 @@ class StructureCommand extends Command
 {
     use Db;
 
-    protected $signature = 'hd:structure {model} {dir=0} {--force}';
+    protected $signature = 'hd:structure {model} {dir?} {--force}';
 
     protected $description = 'Generate the table structure cache';
 
@@ -33,10 +33,13 @@ class StructureCommand extends Command
      */
     public function handle()
     {
-        $model       = $this->argument('model');
+        $model = $this->argument('model');
+        if ( ! class_exists($model)) {
+            return $this->error("model {$model} doesn't exist");
+        }
         $this->model = new $model();
         if ( ! $this->isTable()) {
-            return $this->error('table do not exist');
+            return $this->error("table doesn't exist");
         }
         $this->writeColumnsData();
         $this->writeHandleClass();
@@ -51,12 +54,12 @@ class StructureCommand extends Command
     {
         $modelClass = get_class($this->model);
         $modelName  = class_basename($modelClass);
-        $file = $this->getDir()."/{$modelName}Handle.php";
-        if (is_file($file)) {
+        $file       = $this->getDir()."/{$modelName}Handle.php";
+        if (is_file($file) && ! $this->option('force')) {
             return;
         }
-        $namespace  = studly_case($this->getNamespace());
-        $columns    = implode("','", array_keys($this->getColumnData()));
+        $namespace = studly_case($this->getNamespace());
+        $columns   = implode("','", array_keys($this->getColumnData()));
         file_put_contents($file, <<<str
 <?php 
 namespace {$namespace};
