@@ -22,7 +22,7 @@ class BaseHandle
     public function render()
     {
         $columns = $this->getAllowColumns();
-        $html    = array_map(function ($column) {
+        $html = array_map(function ($column) {
             return $this->view($column);
         }, $columns);
 
@@ -32,20 +32,43 @@ class BaseHandle
     protected function view($field)
     {
         $field['value'] = $this->model[$field['name']];
-        if (method_exists($this, '_'.$field['name'])) {
-            $field = array_merge($field, call_user_func_array([$this, '_'.$field['name']], []));
+        if ( ! method_exists($this, '_'.$field['name'])) {
+            return '';
         }
+        $field = array_merge($field, call_user_func_array([$this, '_'.$field['name']], []));
+        $field = $this->formatField($field);
         $model = $this->model;
-        //dump($field);
-        return response(view('HdLaravelView::'.$field['type'], compact('field', 'model')))->getContent();
+        $html  = isset($field['_view']) ? $field['_view'] : 'HdLaravelView::'.$field['type'];
+
+        return response(view($html, compact('field', 'model')))->getContent();
+    }
+
+    /**
+     * 字段值闭包解析
+     *
+     * @param $field
+     *
+     * @return mixed
+     */
+    protected function formatField($field)
+    {
+        foreach ($field as $name => $value) {
+            if ($value instanceof \Closure) {
+                $field[$name] = $value();
+            }
+        }
+
+        return $field;
     }
 
     //获取允许的列表
     protected function getAllowColumns()
     {
-        $columns = $this->getColumnData();
-        return array_filter($columns, function ($column) {
-            return in_array($column['name'], $this->allowFields);
-        });
+        $configs = [];
+        foreach ($this->allowFields as $column) {
+            $configs[$column] = ['name' => $column,];
+        }
+
+        return $configs;
     }
 }

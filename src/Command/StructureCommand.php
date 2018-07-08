@@ -17,7 +17,6 @@ class StructureCommand extends Command
 
     protected $description = 'Generate the table structure cache';
 
-
     //模型
     protected $model;
 
@@ -41,7 +40,7 @@ class StructureCommand extends Command
         if ( ! $this->isTable()) {
             return $this->error("table doesn't exist");
         }
-        $this->writeColumnsData();
+        //$this->writeColumnsData();
         $this->writeHandleClass();
     }
 
@@ -69,12 +68,25 @@ use {$modelClass};
 
 class {$modelName}Handle extends BaseHandle{
     
-    //允许处理字段
+    //生成表单的字段，也是表单显示的顺序
     protected \$allowFields = ['$columns'];
     
     public function __construct({$modelName} \${$modelName})
     {
         parent::__construct(\${$modelName});
+    }
+    
+    //下面是test字段的演示
+    public function _test(){
+        return [
+            'title'=>'这是标题',//表单标题
+            'type'=>'input',//表单类型
+            'placeholder'=>'这是提示信息',
+            'options'=>function(){
+                //只对 select/radio/checkbox 表单有效
+                return [1=>'男',2=>'女'];
+            }
+        ];
     }
 }
 str

@@ -3,7 +3,7 @@
 根据模型自动生成页面表单，提高网站开发速度。
 > houdunren.com @ 向军大叔  
 
-项目地址：https://github.com/houdunwang/laravel-view
+项目地址：https://packagist.org/packages/houdunwang/laravel-view
 
 ## 安装组件
 
@@ -35,50 +35,13 @@ php artisan vendor:publish --provider="Houdunwang\LaravelView\ServiceProvider"
 
 请参考文档  https://github.com/houdunwang/houdunren-vue-form  进行安装配置。
 
-## 数据表
-
-表单生成规则以数据表的注释为主，下面是用于后面讲解的栏目表结构。
-
-```
-CREATE TABLE `article_categories` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '栏目名称|input',
-  `pid` mediumint(9) NOT NULL COMMENT '父级栏目|select',
-  `description` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '栏目描述|textarea',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-```
-
-### 字段修饰
-
-表单根据字段的注释生成，下面是各种类型表单的注释说明。
-
-下面以 article_categories 表的title 字段设置进行说明。
-
-```
- `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标题|input',
-```
-
-上面是title字段的声明，COMMENT属性以 | 分隔 `中文描述|模板表单类型|选项`
-
-| 表单类型 | 表注释                        | 说明                               |
-| -------- | ----------------------------- | ---------------------------------- |
-| input    | 表单名称\|input               |                                    |
-| textarea | 表单名称\|textarea            |                                    |
-| image    | 表单名称\|image               |                                    |
-| radio    | 表单名称\|radio\|1:男,2:女    |                                    |
-| checkbox | 表单名称\|checkbox\|1:男,2:女 |                                    |
-| select   | 表单名称\|select              | 需要在 处理器类中返回 option列表值 |
-
 ## 处理器
 
-系统会为每个表生成 `Handle.php` 处理器文件，处理器用于对表单的二次处理。
+系统会为每个表生成 `Handle.php` 处理器文件，处理器用于对字段进行处理。
 
 ### 创建处理器
 
-系统根据模型分析表结构，自动生成处理器。
+处理器用于对表单的结构定义并生成表单模板。
 
 ```
 php artisan hd:structure 模型 [目录] [--force]
@@ -107,56 +70,144 @@ php artisan hd:structure Modules\\Entities\\Category Modules/Article
 php artisan hd:structure Modules\\Entities\\Category Modules/Article --force
 ```
 
-### 字段说明
+## 表单处理
 
-处理器返回的数据会被渲染到表单视图中，下面是对合法返回值的说明：
+在处理器中以 `_` + `字段名` 定义的方法，会用于格式化字段使用，下面对字段进行说明。
 
-| 字段名  | 字段说明                             | 系统字段 |
-| ------- | ------------------------------------ | -------- |
-| title   | 中文标题                             | 是       |
-| value   | 默认值，自动从模型中获取             | 是       |
-| name    | 字段变量名                           | 是       |
-| type    | 表单类型                             | 是       |
-| options | 选项值，适用于 radio/checkbox/select | 否       |
+因为有些表单需要  https://github.com/houdunwang/houdunren-vue-form 组件的处理，所以请先行安装并配置正确这个组件。
 
-### 列表框处理
+### 表单类型
 
-由于列表框和业务强依赖系统生成意义不大，需要开发者在处理器中自行实现。
+目前组件支持的表单类型如下
 
-下面是获取 `article_categories` 表 `pid` 字段视图中显示列表值的操作。
+| 表单类型 | 表注释                        | 说明                               |
+| -------- | ----------------------------- | ---------------------------------- |
+| input    | 表单名称\|input               |                                    |
+| textarea | 表单名称\|textarea            |                                    |
+| image    | 表单名称\|image               |                                    |
+| radio    | 表单名称\|radio\|1:男,2:女    |                                    |
+| checkbox | 表单名称\|checkbox\|1:男,2:女 |                                    |
+| select   | 表单名称\|select              | 需要在 处理器类中返回 option列表值 |
 
-* 字段处理函数定义在 `CategoryHeadle.php` 类文件中
-* 字段处理函数命名规则 `_`+`字段名`
+### 数据结构
+
+下面是表单数据结构的说明，返回合法的数据结构才会正确渲染页面。
+
+| 变量    | 说明       | 适用场景                     |
+| ------- | ---------- | ---------------------------- |
+| title   | 中文标题   | 是                           |
+| value   | 表单值     | 是                           |
+| name    | 字段变量名 | 不需要设置                   |
+| type    | 表单类型   | 是                           |
+| options | 选项值     | 适用于 radio/checkbox/select |
+
+1. 所有变量支持以匿名函数返回
+2. $this->model 为当前记录模型
+
+### 文本框
 
 ```
-class ArticleCategoryHandle extends BaseHandle
+public function _title()
 {
-	...
-	public function _pid()
-    {
-        $data = [];
-        foreach ($this->model->get() as $cat) {
-            $data[]=[
-                //option文本描述
-                'title'=>$cat['title'],
-                //options值
-                'value'=>$cat['id'],
-                //选中的选项
-                'selected'=>$this->model->pid ==$cat['id'],
-                //不允许选择自身
-                'disabled'=>$this->model->id == $cat['id']
-            ];
-        }
-		return ['title'=>'重设栏目标题','options'=>$data];
-    }
-    ...
+	return [
+		'title'       => '栏目名称',//表单标题
+		'type'        => 'input',//表单类型
+	];
 }
 ```
 
-* 返回值以数组形式返回并包含 `options` 选项
-* 必须返回 title/value/selected/disabled 字段用于构建 option 表单
-* 上面字段也重新设置了栏目标题
-* 可以在处理函数中使用 `$this->model` 获取模型对象
+### 文本域
+
+```
+public function _description()
+{
+        return [
+            'title'       => '栏目描述',//表单标题
+            'type'        => 'textarea',//表单类型
+        ];
+}
+```
+
+### 单选框
+
+```
+public function _iscommend()
+{
+        return [
+            'title'       => '推荐',//表单标题
+            'type'        => 'radio',//表单类型
+            'options'     => function () {
+                return [
+                   ['title' => '是', 'value' => 1,'checked'=>$this->model->iscommend==1],
+                   ['title' => '否', 'value' => 0,'checked'=>$this->model->iscommend==0]
+                ];
+            },
+        ];
+}
+```
+
+### 复选框
+
+```
+public function _city()
+{
+        return [
+            'title'       => '城市',//表单标题
+            'type'        => 'checkbox',//表单类型
+            'options'     => function () {
+                $values = explode(',', $this->model['city']);
+                return [
+                    ['title' => '北京', 'value' => 1,'checked'=>in_array('北京',$values)],
+                    ['title' => '上海', 'value' => 2,'checked'=>in_array('上海',$values)],
+                    ['title' => '广东', 'value' => 3,'checked'=>in_array('广东',$values)],
+                ];
+            },
+        ];
+}
+```
+
+### 单张图片
+
+需要正确配置 https://github.com/houdunwang/houdunren-vue-form   上传参数。
+
+```
+public function _pic()
+{
+        return [
+            'title'       => '栏目图片',//表单标题
+            'type'        => 'image',//表单类型
+        ];
+}
+```
+
+### 列表框
+
+```
+public function _pid()
+{
+        return [
+            'title'       => '父级栏目',//表单标题
+            'type'        => 'select',//表单类型
+            'options'     => function () {
+                $data = [];
+                foreach ($this->model->get() as $cat) {
+                    $data[] = [
+                        //option文本描述
+                        'title'    => $cat['title'],
+                        //options值
+                        'value'    => $cat['id'],
+                        //选中的选项
+                        'selected' => $this->model->pid == $cat['id'],
+                        //不允许选择自身
+                        'disabled' => $this->model->id == $cat['id'],
+                    ];
+                }
+
+                return $data;
+            },
+        ];
+}
+```
 
 ## 渲染视图 
 

@@ -19,13 +19,8 @@ trait Db
         $configs = [];
         foreach ($columns as $column) {
             if ($this->allowColumn($column)) {
-                $comment                     = explode('|', $column->getComment());
                 $configs[$column->getName()] = [
-                    'title'   => $comment[0],
-                    'name'    => $column->getName(),
-                    'type'    => $comment[1],
-                    'value'   => '',
-                    'options' => $this->getFormOptions($comment),
+                    'name' => $column->getName(),
                 ];
             }
         }
@@ -33,25 +28,9 @@ trait Db
         return $configs;
     }
 
-    protected function getFormOptions($comment)
-    {
-        $data = [];
-        if (isset($comment[2])) {
-            $options = explode(',', $comment[2]);
-            foreach ($options as $option) {
-                $data[] = explode(':', $option);
-            }
-        }
-
-        return $data;
-    }
-
     protected function allowColumn($column)
     {
-        $comment = explode('|', $column->getComment());
-
-        return count($comment) >= 2 &&
-            ! in_array($column->getName(), $this->denyColumn);
+        return ! in_array($column->getName(), $this->denyColumn);
     }
 
     protected function getDoctrineConnection()
@@ -69,9 +48,9 @@ trait Db
         return DriverManager::getConnection($connectionParams, $config);
     }
 
-    protected function listTableColumns($model)
+    protected function listTableColumns()
     {
-        return $this->getDoctrineConnection()->getSchemaManager()->listTableColumns($model->getTable());
+        return $this->getDoctrineConnection()->getSchemaManager()->listTableColumns($this->model->getTable());
     }
 
     protected function isTable()
