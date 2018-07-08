@@ -4,6 +4,7 @@
         @if(isset($field['options']))
             @foreach($field['options'] as $option)
                 <div class="form-check form-check-inline">
+                    {{--{!! dd($field['value']) !!}--}}
                     <input class="form-check-input" type="checkbox" {{isset($option['checked']) && $option['checked']?'checked=""':''}} name="{{$field['name']}}[]" value="{{$option['value']}}">
                     <label class="form-check-label" >{{$option['title']}}</label>
                 </div>

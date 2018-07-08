@@ -4,7 +4,7 @@
         @if(isset($field['options']))
             @foreach($field['options'] as $option)
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" {{isset($option['checked']) && $option['checked']?'checked=""':''}} name="{{$field['name']}}" value="{{$option['value']}}">
+                    <input class="form-check-input" type="radio" {{$field['value']==$option['value']?'checked=""':''}} name="{{$field['name']}}" value="{{$option['value']}}">
                     <label class="form-check-label">{{$option['title']}}</label>
                 </div>
             @endforeach

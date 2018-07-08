@@ -6,7 +6,7 @@
  * '-------------------------------------------------------------------*/
 namespace Houdunwang\LaravelView;
 
-use Houdunwang\LaravelView\Command\StructureCommand;
+use Houdunwang\LaravelView\Command\HandleCommand;
 use \Illuminate\Support\ServiceProvider as BaseServiceProvider;
 
 class ServiceProvider extends BaseServiceProvider
@@ -21,7 +21,7 @@ class ServiceProvider extends BaseServiceProvider
         //命令声明
         if ($this->app->runningInConsole()) {
             $this->commands([
-                StructureCommand::class,
+                HandleCommand::class,
             ]);
         }
 

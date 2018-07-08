@@ -7,13 +7,14 @@
 namespace Houdunwang\LaravelView\Command;
 
 use Houdunwang\LaravelView\Traits\Db;
+use Houdunwang\LaravelView\Traits\GenerateHandleTrait;
 use Illuminate\Console\Command;
 
-class StructureCommand extends Command
+class HandleCommand extends Command
 {
-    use Db;
+    use Db,GenerateHandleTrait;
 
-    protected $signature = 'hd:structure {model} {dir?} {--force}';
+    protected $signature = 'hd:handle {model} {dir?} {--force}';
 
     protected $description = 'Generate the table structure cache';
 
@@ -58,6 +59,7 @@ class StructureCommand extends Command
             return;
         }
         $namespace = studly_case($this->getNamespace());
+        $handleContent = $this->getHandleContent();
         $columns   = implode("','", array_keys($this->getColumnData()));
         file_put_contents($file, <<<str
 <?php 
@@ -76,18 +78,7 @@ class {$modelName}Handle extends BaseHandle{
         parent::__construct(\${$modelName});
     }
     
-    //下面是test字段的演示
-    public function _test(){
-        return [
-            'title'=>'这是标题',//表单标题
-            'type'=>'input',//表单类型
-            'placeholder'=>'这是提示信息',
-            'options'=>function(){
-                //只对 select/radio/checkbox 表单有效
-                return [1=>'男',2=>'女'];
-            }
-        ];
-    }
+    $handleContent
 }
 str
         );
