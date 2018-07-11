@@ -71,4 +71,26 @@ class BaseHandle
 
         return $configs;
     }
+
+    /**
+     * 根据字段获取显示值
+     *
+     * @param $column
+     * @param $model
+     *
+     * @return string
+     */
+    public function value($model, $column)
+    {
+        $action      = "_{$column}_value";
+        $this->model = $model;
+        if (method_exists($this, $action)) {
+            return $this->$action();
+        }
+        if (preg_match('@\.(png|jpeg|jpg|gif)$@i', $model[$column])) {
+            return "<img src='{$model[$column]}' style='width:45px;height:45px;'/>";
+        } else {
+            return $model[$column];
+        }
+    }
 }

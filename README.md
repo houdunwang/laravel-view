@@ -49,7 +49,7 @@ php artisan hd:handle 模型 [目录] [--force]
 >
 > [--force] 强制覆盖生成（慎重使用）
 
-### 自动创建处理器
+### 创建处理器
 
 我们可以通过修改数据表注释的形式，快速生成表单处理器，请看下面是栏目表的字段声明。
 
@@ -284,7 +284,27 @@ class HomeController extends Controller
 {!! $html !!}
 ```
 
+## 处理器方法
 
+#### 获取字段列表
+
+```
+$handle = new ContentHandle(new Content);
+$handle->getListColumns() 
+```
+
+#### 获取默认值
+
+学用于后台列表页显示字段内容
+
+```
+$handle = new ContentHandle(new Content);
+$handle->value(Content::find(1),'title')
+```
+
+第一个参数为模型，第二个为字段名
+
+如果处理器存在 _title_value 命名方法，调用该方法返回值，否则返回模型默认值，图片时以 img 标签实现。
 
 
 

@@ -13,7 +13,7 @@ trait Db
 {
     protected $denyColumn = ['id', 'created_at', 'updated_at'];
 
-    protected function getColumnData($model)
+    protected function getColumnData($model=null)
     {
         $model   = $model ?? $this->model;
         $columns = $this->listTableColumns($model);
@@ -119,33 +119,6 @@ trait Db
         }
 
         return $info;
-    }
-
-    /**
-     * 根据字段获取显示值
-     *
-     * @param $column
-     * @param $model
-     *
-     * @return string
-     */
-    public function value($column, $model)
-    {
-        $value = '';
-        if ($model) {
-            switch ($column['options']['1']) {
-                case 'radio':
-                    $value = $column['options'][2][$model[$column['name']]];
-                    break;
-                case 'image':
-                    $value = "<img src='{$model[$column['name']]}' style='width:45px;height:45px;'/>";
-                    break;
-                default:
-                    $value = $model[$column['name']];
-            }
-        }
-
-        return $value;
     }
 
     protected function formatFieldOptions($options)
