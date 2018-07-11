@@ -55,7 +55,7 @@ trait Db
         $info = ((array)$res[0]);
         preg_match("@COMMENT='(.*?)'@i", $info['Create Table'], $match);
 
-        return $match[1] ? trim($match[1]) : '';
+        return isset($match[1]) ? trim($match[1]) : '';
     }
 
     protected function listTableColumns($model)
@@ -136,6 +136,9 @@ trait Db
             switch ($column['options']['1']) {
                 case 'radio':
                     $value = $column['options'][2][$model[$column['name']]];
+                    break;
+                case 'image':
+                    $value = "<img src='{$model[$column['name']]}' style='width:45px;height:45px;'/>";
                     break;
                 default:
                     $value = $model[$column['name']];

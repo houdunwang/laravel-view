@@ -25,6 +25,7 @@ trait GenerateHandleTrait
                 }
             }
         }
+
         return $classStr;
     }
 
@@ -136,18 +137,20 @@ str;
 
     protected function _select($params, $column)
     {
-        $options   = explode(',', $params[2]);
         $optionStr = '';
-        foreach ($options as $option) {
-            $info      = explode(':', $option);
-            $optionStr .= "['title' => '{$info[1]}', 'value' => {$info[0]},'selected'=>\$this->model['{$column->getName()}']=={$info[0]},'disabled'=> ''],";
+        if (isset($params[2])) {
+            $options   = explode(',', $params[2]);
+            foreach ($options as $option) {
+                $info      = explode(':', $option);
+                $optionStr .= "['title' => '{$info[1]}', 'value' => {$info[0]},'selected'=>\$this->model['{$column->getName()}']=={$info[0]},'disabled'=> ''],";
+            }
         }
 
         return <<<str
 public function _{$column->getName()}()
 {
         return [
-            'title'       => '父级栏目',//表单标题
+            'title'       => '{$params[0]}',//表单标题
             'type'        => 'select',//表单类型
             'options'     => function () {
                 return [

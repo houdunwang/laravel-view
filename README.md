@@ -214,9 +214,13 @@ public function _pid()
             'title'       => '父级栏目',//表单标题
             'type'        => 'select',//表单类型
             'options'     => function () {
-                $data = [];
+				$data = [[
+				'id'=>0,'title' => '顶级栏目', 'value' => 0, 
+				'selected' => false, 'disabled' => false
+				]];
+				$res=[];
                 foreach ($this->model->get() as $cat) {
-                    $data[] = [
+                    $res[] = [
                         //option文本描述
                         'title'    => $cat['title'],
                         //options值
@@ -227,7 +231,7 @@ public function _pid()
                         'disabled' => $this->model->id == $cat['id'],
                     ];
                 }
-			return $data;
+			return $res;
 		},
 	];
 }
