@@ -22,7 +22,7 @@ class BaseHandle
     public function render()
     {
         $columns = $this->getAllowColumns();
-        $html = array_map(function ($column) {
+        $html    = array_map(function ($column) {
             return $this->view($column);
         }, $columns);
 

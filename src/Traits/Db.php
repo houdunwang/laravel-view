@@ -13,9 +13,10 @@ trait Db
 {
     protected $denyColumn = ['id', 'created_at', 'updated_at'];
 
-    protected function getColumnData()
+    protected function getColumnData($model)
     {
-        $columns = $this->listTableColumns($this->model);
+        $model   = $model ?? $this->model;
+        $columns = $this->listTableColumns($model);
         $configs = [];
         foreach ($columns as $column) {
             if ($this->allowColumn($column)) {
@@ -48,9 +49,20 @@ trait Db
         return DriverManager::getConnection($connectionParams, $config);
     }
 
-    protected function listTableColumns()
+    protected function getTableComment($model)
     {
-        return $this->getDoctrineConnection()->getSchemaManager()->listTableColumns($this->model->getTable());
+        $res  = \DB::select("show create table ".$model->getTable());
+        $info = ((array)$res[0]);
+        preg_match("@COMMENT='(.*?)'@i", $info['Create Table'], $match);
+
+        return $match[1] ? trim($match[1]) : '';
+    }
+
+    protected function listTableColumns($model)
+    {
+        $model = $model ?? $this->model;
+
+        return $this->getDoctrineConnection()->getSchemaManager()->listTableColumns($model->getTable());
     }
 
     protected function isTable()
@@ -63,5 +75,87 @@ trait Db
         }
 
         return false;
+    }
+
+    public function formatColumns($model = null, $filter = [])
+    {
+        $model   = $model ?? $this->model;
+        $columns = $this->listTableColumns($model);
+        $data    = [];
+        foreach ($columns as $column) {
+            if ( in_array($column->getName(), $filter)) {
+                $data[$column->getName()] = $this->formatComment($column);
+            }
+        }
+
+        return $data;
+    }
+
+    public function getListColumns()
+    {
+        return $this->formatColumns(null, $this->listShowFields);
+    }
+
+    /**
+     * 根据字段注释提取字段信息
+     *
+     * @param $column
+     *
+     * @return array
+     */
+    protected function formatComment($column)
+    {
+        $comment = $column->getComment();
+        $info    = [];
+        if ( ! is_null($comment)) {
+            $options = explode('|', $comment);
+            if (count($options) >= 2) {
+                $info['title']   = $options[0];
+                $info['name']    = $column->getName();
+                $info['nonull']  = $column->getNotNull();
+                $info['default'] = $column->getDefault();
+                $info['options'] = $this->formatFieldOptions($options);
+            }
+        }
+
+        return $info;
+    }
+
+    /**
+     * 根据字段获取显示值
+     *
+     * @param $column
+     * @param $model
+     *
+     * @return string
+     */
+    public function value($column, $model)
+    {
+        $value = '';
+        if ($model) {
+            switch ($column['options']['1']) {
+                case 'radio':
+                    $value = $column['options'][2][$model[$column['name']]];
+                    break;
+                default:
+                    $value = $model[$column['name']];
+            }
+        }
+
+        return $value;
+    }
+
+    protected function formatFieldOptions($options)
+    {
+        if (isset($options[2])) {
+            $info = [];
+            foreach (explode(',', $options[2]) as $k => $option) {
+                $tmp           = explode(':', $option);
+                $info[$tmp[0]] = $tmp[1];
+            }
+            $options[2] = $info;
+        }
+
+        return $options;
     }
 }

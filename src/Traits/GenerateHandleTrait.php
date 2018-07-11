@@ -11,7 +11,7 @@ trait GenerateHandleTrait
 {
     public function getHandleContent()
     {
-        $columns  = $this->listTableColumns();
+        $columns  = $this->listTableColumns($this->model);
         $configs  = [];
         $classStr = '';
         foreach ($columns as $column) {
@@ -25,7 +25,6 @@ trait GenerateHandleTrait
                 }
             }
         }
-
         return $classStr;
     }
 
@@ -40,8 +39,8 @@ public function _{$column->getName()}()
 	];
 }\n
 str;
-
     }
+
     public function _simditor($params, $column)
     {
         return <<<str
@@ -53,7 +52,6 @@ public function _{$column->getName()}()
 	];
 }\n
 str;
-
     }
 
     protected function _textarea($params, $column)

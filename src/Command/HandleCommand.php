@@ -8,18 +8,22 @@ namespace Houdunwang\LaravelView\Command;
 
 use Houdunwang\LaravelView\Traits\Db;
 use Houdunwang\LaravelView\Traits\GenerateHandleTrait;
+use Houdunwang\Module\Traits\BuildVars;
 use Illuminate\Console\Command;
 
 class HandleCommand extends Command
 {
-    use Db,GenerateHandleTrait;
+    use Db, GenerateHandleTrait, BuildVars;
 
-    protected $signature = 'hd:handle {model} {dir?} {--force}';
+    protected $signature = 'hd:handle {model} {module} {--force}';
 
     protected $description = 'Generate the table structure cache';
 
-    //模型
     protected $model;
+    protected $module;
+
+    //模型对象
+    protected $modelInstance;
 
     public function __construct()
     {
@@ -33,21 +37,23 @@ class HandleCommand extends Command
      */
     public function handle()
     {
-        $model = $this->argument('model');
-        if ( ! class_exists($model)) {
-            return $this->error("model {$model} doesn't exist");
+        $model  = ucfirst($this->argument('model'));
+        $module = ucfirst($this->argument('module'));
+        $this->setVars($model,$module);
+        $modelClass = $this->vars['NAMESPACE'].'Entities\\'.$model;
+        if ( ! class_exists($modelClass)) {
+            return $this->error("model {$modelClass} doesn't exist");
         }
-        $this->model = new $model();
+        $this->model = new $modelClass();
         if ( ! $this->isTable()) {
             return $this->error("table doesn't exist");
         }
-        //$this->writeColumnsData();
         $this->writeHandleClass();
     }
 
     protected function getNamespace()
     {
-        return str_replace('/', '\\', $this->getDir());
+        return $this->getVar('NAMESPACE').'Tables';
     }
 
     protected function writeHandleClass()
@@ -58,9 +64,9 @@ class HandleCommand extends Command
         if (is_file($file) && ! $this->option('force')) {
             return;
         }
-        $namespace = studly_case($this->getNamespace());
+        $namespace     = studly_case($this->getNamespace());
         $handleContent = $this->getHandleContent();
-        $columns   = implode("','", array_keys($this->getColumnData()));
+        $columns       = implode("','", array_keys($this->getColumnData($this->model)));
         file_put_contents($file, <<<str
 <?php 
 namespace {$namespace};
@@ -70,9 +76,11 @@ use {$modelClass};
 
 class {$modelName}Handle extends BaseHandle{
     
-    //生成表单的字段，也是表单显示的顺序
+    //编辑修改时显示的字段
     protected \$allowFields = ['$columns'];
     
+    //列表页显示的字段
+    protected \$listShowFields = ['$columns'];
     public function __construct({$modelName} \${$modelName})
     {
         parent::__construct(\${$modelName});
@@ -87,13 +95,7 @@ str
 
     protected function getDir()
     {
-        $dirArgument = $this->argument('dir');
-
-        if ($dirArgument) {
-            $dir = ucfirst($dirArgument).'/Tables/'.class_basename($this->model);
-        } else {
-            $dir = config('hd_tables.path').'/Tables/'.class_basename($this->model);
-        }
+        $dir =  $this->getVar('MODULE_PATH').'/Tables/';
         is_dir($dir) or mkdir($dir, 0755, true);
 
         return $dir;

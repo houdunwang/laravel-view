@@ -87,23 +87,22 @@ Schema::create('categories', function (Blueprint $table) {
 
 严格使用英文字符
 
-下面是生成 `Category` 模型处理器。
+下面是生成`Admin` 模块的 `Category` 模型处理器。
 
 ```
-php artisan hd:handle Modules\Article\Entities\Category Modules/Article
+php artisan hd:handle Category Article
 ```
 
 系统将在 `Modules/Article/Tables` 目录中创建处理器文件
 
 ```
-└── Category
-    ├── CategoryHandle.php  #栏目模型处理器
+└── CategoryHandle.php  #栏目模型处理器
 ```
 
 如果处理器已经存在，可以加上 `--force` 参数强制生成
 
 ```
-php artisan hd:handle Modules\Article\Entities\Category Modules/Article --force
+php artisan hd:handle Category Article --force
 ```
 
 ## 表单处理
@@ -136,8 +135,8 @@ php artisan hd:handle Modules\Article\Entities\Category Modules/Article --force
 public function _title()
 {
 	return [
-		'title'       => '栏目名称',//表单标题
-		'type'        => 'input',//表单类型
+		'title'=> '栏目名称',//表单标题
+		'type'=> 'input',//表单类型
 	];
 }
 ```
@@ -147,10 +146,10 @@ public function _title()
 ```
 public function _description()
 {
-        return [
-            'title'       => '栏目描述',//表单标题
-            'type'        => 'textarea',//表单类型
-        ];
+	return [
+		'title'=> '栏目描述',//表单标题
+		'type'=> 'textarea',//表单类型
+	];
 }
 ```
 
@@ -159,16 +158,16 @@ public function _description()
 ```
 public function _iscommend()
 {
-        return [
-            'title'       => '推荐',//表单标题
-            'type'        => 'radio',//表单类型
-            'options'     => function () {
-                return [
-                   ['title' => '是', 'value' => 1],
-                   ['title' => '否', 'value' => 0]
-                ];
-            },
-        ];
+	return [
+		'title'=> '推荐',//表单标题
+		'type'=> 'radio',//表单类型
+		'options'=> function () {
+            return [
+                ['title' => '是', 'value' => 1],
+                ['title' => '否', 'value' => 0]
+            ];
+        },
+	];
 }
 ```
 
@@ -177,18 +176,18 @@ public function _iscommend()
 ```
 public function _city()
 {
-        return [
-            'title'       => '城市',//表单标题
-            'type'        => 'checkbox',//表单类型
-            'options'     => function () {
-                $values = explode(',', $this->model['city']);
-                return [
-                    ['title' => '北京', 'value' => 1,'checked'=>in_array('北京',$values)],
-                    ['title' => '上海', 'value' => 2,'checked'=>in_array('上海',$values)],
-                    ['title' => '广东', 'value' => 3,'checked'=>in_array('广东',$values)],
-                ];
-            },
-        ];
+	return [
+		'title'       => '城市',//表单标题
+		'type'        => 'checkbox',//表单类型
+		'options'     => function () {
+            $values = explode(',', $this->model['city']);
+            return [
+                ['title' => '北京', 'value' => 1,'checked'=>in_array('北京',$values)],
+                ['title' => '上海', 'value' => 2,'checked'=>in_array('上海',$values)],
+                ['title' => '广东', 'value' => 3,'checked'=>in_array('广东',$values)],
+            ];
+        },
+	];
 }
 ```
 
@@ -199,10 +198,10 @@ public function _city()
 ```
 public function _pic()
 {
-        return [
-            'title'       => '栏目图片',//表单标题
-            'type'        => 'image',//表单类型
-        ];
+	return [
+		'title'=> '栏目图片',//表单标题
+		'type'=> 'image',//表单类型
+	];
 }
 ```
 
@@ -211,7 +210,7 @@ public function _pic()
 ```
 public function _pid()
 {
-        return [
+	return [
             'title'       => '父级栏目',//表单标题
             'type'        => 'select',//表单类型
             'options'     => function () {
@@ -228,10 +227,9 @@ public function _pid()
                         'disabled' => $this->model->id == $cat['id'],
                     ];
                 }
-
-                return $data;
-            },
-        ];
+			return $data;
+		},
+	];
 }
 ```
 
@@ -243,9 +241,9 @@ public function _pid()
 public function _title()
 {
 	return [
-		'title'       => '栏目名称',//表单标题
-		'type'        => 'input',//表单类型
-		'_view'		  => 'form.input'//将使用 resources/views/form/input.blade.php 渲染
+		'title'=> '栏目名称',//表单标题
+		'type'=> 'input',//表单类型
+		'_view'=> 'form.input'//将使用 resources/views/form/input.blade.php 渲染
 	];
 }
 ```
@@ -257,14 +255,14 @@ public function _title()
 ```
 <?php namespace App\Http\Controllers;
 
-use App\ArticleCategory;
-use App\Tables\ArticleCategory\ArticleCategoryHandle;
+use App\Category;
+use App\Tables\CategoryHandle;
 
 class HomeController extends Controller
 {
-    public function create(ArticleCategory $articleCategory)
+    public function create(Category $Category)
     {
-        $handle = new CategoryHandle($articleCategory);
+        $handle = new CategoryHandle($Category);
         $html   = $handle->render();
 
         return view('home', compact('html'));
@@ -272,7 +270,7 @@ class HomeController extends Controller
 }
 ```
 
-系统根据 `App\Tables\、Category\Handle` 结合模型 `ArticleCategory` 生成页面视图。
+系统根据 `App\Tables\CategoryHandle` 处理器结合模型 `Category` 生成页面视图。
 
 当组件有数据时即编辑时，页面视图会自动添加上数据内容。
 
