@@ -84,6 +84,7 @@ Schema::create('categories', function (Blueprint $table) {
 | radio    | 表单名称\|radio\|1:男,2:女                |      |
 | checkbox | 表单名称\| checkbox\|1:中国,2:北京,3:广东 |      |
 | select   | 表单名称\|select\|1:电影,2:游戏,3:汽车    |      |
+| simditor | 编辑器                                    |      |
 
 严格使用英文字符
 
